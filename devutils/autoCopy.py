@@ -8,7 +8,7 @@ import json
 
 logging.basicConfig(level=logging.INFO, format='[autoCopy] %(message)s') # set up logging
 
-CONFIG_FILE = "/home/aron/Documents/OC-Nodify/devutils/autoCopyConfig.json"
+CONFIG_FILE = "C:\\Users\\Áron\Documents\\OC-Nodify\\devutils\\autoCopyConfig.json"
 CONFIG = {
     "folderToTrack": "",
     "ignoreList": [],
@@ -24,7 +24,7 @@ if not os.path.isfile(CONFIG_FILE):
     exit()
     
 else:
-    with open(CONFIG_FILE, "r") as f:
+    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         CONFIG = json.load(f)
         print("Config file loaded")
         

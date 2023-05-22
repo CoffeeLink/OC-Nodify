@@ -66,3 +66,12 @@ function Body.new(msg_type, msg_id, msg_reply_id)
   self.msg_reply_to.value = msg_reply_id
   return self
 end
+
+--- Adds a field to the body
+--- @param field Field The field to add
+--- @return table The body with the field added
+function Body:addField(field)
+  checkVar(1, field, "table")
+  table.insert(self.fields, field)
+  return self
+end
