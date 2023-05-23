@@ -186,6 +186,8 @@ function Payload.new(src, dest, body)
   return self
 end
 
+--- Creates a table from all fields like a json object
+--- @return table The table with all fields
 function Payload:toTable()
   local table = {} -- output
   table.src = self.src
@@ -194,7 +196,31 @@ function Payload:toTable()
   return table
 end
 
+--- Creates a json string from all fields
+--- @return string The json string
 function Payload:serialize()
   return serial.serialize(self:toTable())
 end
 
+--- Creates a new Payload object from a table
+--- @param table table The table to create the payload from
+--- @return table Payload
+function Payload.fromTable(table)
+  return Payload.new(table.src, table.dest, Body.fromTable(table.body))
+end
+
+--- Module Class
+
+---@class Node_Payloads : table The Node Payloads class
+---@field Payload Payload The Payload class
+---@field Body Body The Body class
+---@field Field Field The Field class
+---@field __index Node_Payloads
+local Node_Payloads = {
+  Payload = Payload,
+  Body = Body,
+  Field = Field,
+}
+Node_Payloads.__index = Node_Payloads
+
+return Node_Payloads
