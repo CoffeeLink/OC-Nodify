@@ -5,6 +5,9 @@
 -- Path: src/node_payload.lua
 
 ---------------------------------------------
+--imports
+local serial = require("serialization")
+
 -- The node payload classes
 
 ---@class Field : table The Message Field class
@@ -60,7 +63,7 @@ Body.__index = Body
 function Body.new(msg_type, msg_id, msg_reply_id)
   local self = setmetatable({}, Body)
   checkVar(1, msg_type, "string")
-  
+
   self.msg_type.value = msg_type
   self.msg_id.value = msg_id
   self.msg_reply_to.value = msg_reply_id
@@ -75,3 +78,123 @@ function Body:addField(field)
   table.insert(self.fields, field)
   return self
 end
+
+--- Sets the value of a field
+--- @param fieldName string The name of the field
+--- @param value any The value of the field
+function Body:setField(fieldName, value)
+  checkVar(1, fieldName, "string")
+  checkVar(2, value, "any")
+  -- loops through the fields table and sets the value of the field with a matching name, if it doesnt exist it creates a new field
+  for _, field in ipairs(self.fields) do
+    if field.name == fieldName then
+      field.value = value
+      return
+    end
+  end
+  self:addField(Field.new(fieldName, value))
+end
+
+--- Gets the value of a field
+--- @param fieldName string The name of the field
+--- @return any value The value of the field nil if it doesnt exist
+function Body:getField(fieldName)
+  checkVar(1, fieldName, "string")
+  -- loops through the fields table and returns the value of the field with a matching name, if it doesnt exist it returns nil
+  for _, field in ipairs(self.fields) do
+    if field.name == fieldName then
+      return field.value
+    end
+  end
+  return nil
+end
+
+--- Deletes a field from the body
+--- @param fieldName string The name of the field
+function Body:delField(fieldName)
+  checkVar(1, fieldName, "string")
+  -- loops through the fields table and deletes the field with a matching name, if it doesnt exist it does nothing
+  for i, field in ipairs(self.fields) do
+    if field.name == fieldName then
+      table.remove(self.fields, i)
+      return
+    end
+  end
+end
+
+--- Adds the body to a table
+--- @return table The table with the body added
+function Body:toTable()
+  local table = {} -- output
+  self.msg_type:addToTable(table)
+
+  -- check if msg_id, msg_reply_to isnt empty, if it is dont add it to the table
+  if self.msg_id.value ~= nil then
+    self.msg_id:addToTable(table)
+  end
+  if self.msg_reply_to.value ~= nil then
+    self.msg_reply_to:addToTable(table)
+  end
+  -- loop through the fields table and add them to the output table
+  for _, field in ipairs(self.fields) do
+    field:addToTable(table)
+  end
+  return table
+end
+
+--- Creates a new Body object from a table
+--- @param table table The table to create the body from
+--- @return table Body
+function Body.fromTable(table)
+  local body = Body.new(table.msg_type, table.msg_id, table.msg_reply_to)
+  for key, value in pairs(table) do
+    if key ~= "msg_type" and key ~= "msg_id" and key ~= "msg_reply_to" then
+      body:addField(Field.new(key, value))
+    end
+  end
+  return body
+end
+
+--Payload Class
+
+---@class Payload : table The Message Payload class
+---@field src string The source of the message
+---@field dest string The destination of the message
+---@field body Body The body of the message
+---@field __index Payload
+local Payload = {
+  src = "",
+  dest = "",
+  body = Body,
+}
+Payload.__index = Payload
+
+--- Creates a new Payload object
+--- @param src string The source of the message
+--- @param dest string The destination of the message
+--- @param body Body The body of the message
+--- @return table Payload
+function Payload.new(src, dest, body)
+  local self = setmetatable({}, Payload)
+  checkVar(1, src, "string")
+  checkVar(2, dest, "string")
+  checkVar(3, body, "table")
+
+  self.src = src
+  self.dest = dest
+  self.body = body
+  return self
+end
+
+function Payload:toTable()
+  local table = {} -- output
+  table.src = self.src
+  table.dest = self.dest
+  table.body = self.body:toTable()
+  return table
+end
+
+function Payload:serialize()
+  return serial.serialize(self:toTable())
+end
+
