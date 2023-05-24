@@ -1,4 +1,4 @@
----@author: Áron Demeter 2023-05-22 14:38:26
+---@author: Áron Demeter 2023-05-24 14:57:08
 ---@version: 1.0.0
 ---@description: The node payload classes
 
@@ -51,7 +51,7 @@ local Body = {
   msg_id = Field.new("msg_id", ""),
   msg_reply_to = Field.new("msg_reply_to", ""),
 
-  fields = {} ---@type table<Field>
+  fields = {} ---@type Field[] the fields of the message
 }
 Body.__index = Body
 
