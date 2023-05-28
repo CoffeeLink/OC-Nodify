@@ -37,10 +37,13 @@ function Node.new(name, nodeInterface)
     self.eventListeners = {}
     
     self.interface:setNode(self)
+    self:addEvent("init", self.on_init)
 
     return self
 end
 
+--- Listens for incoming payloads, shouldn't get called on its own
+--- [Blocking forever] Tip: if you want to have the node running in the background you should just start Node:start as a thread
 function Node:listen()
     while true do
         local payload = self.interface:recv()
@@ -100,10 +103,16 @@ function Node:start()
     self:on_start()
 end
 
+--- the default init handler functions
+---@param payload Payload The init payload
 function Node:on_init(payload)
     self.id = payload.body.fields["node_id"].value
+
+    local initResponse = Body.new("init_ok", payload.body.msg_id.value + 1, payload.body.msg_id.value)
+    self:send(payload.src, initResponse) -- reply to router
 end
 
+--- the default on_start callback, does nothing, exist to be overwritten
 function Node:on_start()
     return
 end

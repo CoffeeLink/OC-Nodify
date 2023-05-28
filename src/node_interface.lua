@@ -8,10 +8,10 @@
 local computer = require("computer")
 local thread = require("thread")
 
-local np = require("node_payload") ---for typing reasons
-local Payload = np.Payload
-local Field = np.Field
-local Body = np.Body
+local np = require("node_payload")
+local Payload = np.Payload  ---for typing reasons 
+local Field = np.Field  ---for typing reasons
+local Body = np.Body  ---for typing reasons
 
 ---Interface Master class
 
@@ -26,13 +26,6 @@ local NodeInterface = {
     recivedLimit = 45, ---@type number The max ammount of recived payload cached
 }
 NodeInterface.__index = NodeInterface
-
---- Creates a new NodeInterface object
---- @return table NodeInterface
-function NodeInterface.new()
-    local self = setmetatable({}, NodeInterface)
-    return self
-end
 
 --- Sets the node object
 --- @param node table The node object
@@ -59,7 +52,7 @@ function NodeInterface:recv()
     end
 end
 
-function NodeInterface.recv_thread_func(self)
+function NodeInterface:recv_thread_func()
     while true do
         -- something that recives data i guess
         -- table.insert(self.recived, your data)
